@@ -16,7 +16,7 @@ import (
 	lingua "github.com/pemistahl/lingua-go"
 )
 
-const version = "0.1.0"
+const version = "0.2.0"
 
 // isoCodeToLanguage maps an ISO 639-1 code string to a lingua.Language.
 // Returns lingua.Unknown and false if the code is not recognized.
@@ -154,12 +154,12 @@ func main() {
 		"Minimum relative distance between top language probabilities (0.0-1.0).")
 	delimiter := flag.String("D", "\t",
 		"Output column delimiter.")
-	showVersion := flag.Bool("version", false, "Print version")
+	showVersion := flag.Bool("V", false, "Print version")
 
 	flag.Usage = func() {
-		fmt.Fprintf(os.Stderr, "lingua-cli %s\n\n", version)
-		fmt.Fprintf(os.Stderr, "Usage: lingua-cli [OPTIONS] [TEXT...]\n\n")
-		fmt.Fprintf(os.Stderr, "A command-line tool for natural language detection.\n\n")
+		fmt.Fprintf(os.Stderr, "lingua-cli is a command line tool for language classification, using the lingua-go library.\n\n")
+		fmt.Fprintf(os.Stderr, "Usage: lingua-cli [OPTIONS] [TEXT]...\n\n")
+		fmt.Fprintf(os.Stderr, "Arguments:\n  [TEXT]... \n\n")
 		fmt.Fprintf(os.Stderr, "Options:\n")
 		flag.PrintDefaults()
 	}
