@@ -5,6 +5,8 @@ BUILD_DIR  := dist
 LDFLAGS    := -s -w -X main.version=$(VERSION)
 
 # Target platforms: OS/ARCH pairs
+# macOS universal binary (amd64 + arm64 via lipo) is built separately by _build_darwin_universal.
+# Individual darwin/amd64 and darwin/arm64 binaries are also built for users who prefer them.
 PLATFORMS := \
 	darwin/amd64 \
 	darwin/arm64 \
@@ -14,7 +16,8 @@ PLATFORMS := \
 	windows/amd64 \
 	windows/arm64
 
-.PHONY: all build clean release tidy fmt vet test help
+.PHONY: all build clean release tidy fmt vet test help checksums \
+        _build_platform _build_darwin_universal
 
 ## all: Build for the current platform
 all: build
@@ -42,10 +45,28 @@ test:
 ## release: Cross-compile for all target platforms and create archives
 release: tidy
 	@mkdir -p $(BUILD_DIR)
+	@$(MAKE) _build_darwin_universal
 	@$(foreach PLATFORM,$(PLATFORMS),$(MAKE) _build_platform PLATFORM=$(PLATFORM);)
 	@echo ""
 	@echo "Release archives created in $(BUILD_DIR)/"
 	@ls -lh $(BUILD_DIR)/
+
+# Build macOS universal binary by compiling amd64 and arm64 separately,
+# then combining them with lipo. Requires Xcode Command Line Tools.
+_build_darwin_universal:
+	$(eval ARCNAME := $(BINARY)-$(VERSION)-darwin-universal)
+	@echo "Building darwin/amd64..."
+	@GOOS=darwin GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o $(BUILD_DIR)/_$(BINARY)-darwin-amd64 .
+	@echo "Building darwin/arm64..."
+	@GOOS=darwin GOARCH=arm64 go build -ldflags "$(LDFLAGS)" -o $(BUILD_DIR)/_$(BINARY)-darwin-arm64 .
+	@echo "Creating universal binary with lipo..."
+	@lipo -create -output $(BUILD_DIR)/$(BINARY)-$(VERSION)-darwin-universal \
+		$(BUILD_DIR)/_$(BINARY)-darwin-amd64 \
+		$(BUILD_DIR)/_$(BINARY)-darwin-arm64
+	@rm -f $(BUILD_DIR)/_$(BINARY)-darwin-amd64 $(BUILD_DIR)/_$(BINARY)-darwin-arm64
+	@cd $(BUILD_DIR) && tar czf $(ARCNAME).tar.gz $(BINARY)-$(VERSION)-darwin-universal && \
+		rm -f $(BINARY)-$(VERSION)-darwin-universal
+	@echo "  -> $(BUILD_DIR)/$(ARCNAME).tar.gz"
 
 _build_platform:
 	$(eval GOOS   := $(word 1,$(subst /, ,$(PLATFORM))))

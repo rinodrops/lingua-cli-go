@@ -17,14 +17,15 @@ This is a Go port of [lingua-cli](https://github.com/proycon/lingua-cli) (origin
 
 Download the appropriate archive for your platform from the Releases page:
 
-| Platform              | Archive                                          |
-|-----------------------|--------------------------------------------------|
-| macOS (Apple Silicon) | `lingua-cli-VERSION-darwin-arm64.tar.gz`         |
-| macOS (Intel)         | `lingua-cli-VERSION-darwin-amd64.tar.gz`         |
-| Linux (amd64)         | `lingua-cli-VERSION-linux-amd64.tar.gz`          |
-| Linux (arm64)         | `lingua-cli-VERSION-linux-arm64.tar.gz`          |
-| Windows (amd64)       | `lingua-cli-VERSION-windows-amd64.zip`           |
-| Windows (arm64)       | `lingua-cli-VERSION-windows-arm64.zip`           |
+| Platform                 | Archive                                          |
+|--------------------------|--------------------------------------------------|
+| macOS (Apple Silicon)    | `lingua-cli-VERSION-darwin-arm64.tar.gz`         |
+| macOS (Intel)            | `lingua-cli-VERSION-darwin-amd64.tar.gz`         |
+| macOS (Universal Binary) | `lingua-cli-VERSION-darwin-universal.tar.gz`     |
+| Linux (amd64)            | `lingua-cli-VERSION-linux-amd64.tar.gz`          |
+| Linux (arm64)            | `lingua-cli-VERSION-linux-arm64.tar.gz`          |
+| Windows (amd64)          | `lingua-cli-VERSION-windows-amd64.zip`           |
+| Windows (arm64)          | `lingua-cli-VERSION-windows-arm64.zip`           |
 
 ```sh
 # Example: macOS Apple Silicon
@@ -46,25 +47,36 @@ make build
 ## Usage
 
 ```sh
-Usage: lingua-cli [OPTIONS] [TEXT...]
+123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+lingua-cli is a command line tool for language classification, using the lingua-go library.
+
+Usage: lingua-cli [OPTIONS] [TEXT]...
+
+Arguments:
+  [TEXT]... 
 
 Options:
-  -l string    Comma-separated list of ISO 639-1 language codes to detect.
-               If not specified, all 75 supported languages are used.
-               Restricting languages improves accuracy and reduces memory usage.
-  -n           Classify language per line (stdin only).
-  -L           List all supported languages and exit.
-  -a           Show all confidence values (full probability distribution).
-               Cannot be combined with -m.
-  -q           Quick / low-accuracy mode (faster, uses less memory).
-  -m           Detect multiple languages in mixed-language text.
-               Returns matches with UTF-8 byte offsets.
-               Cannot be combined with -n.
-  -c float     Confidence threshold (0.0-1.0). Results below this value are suppressed.
-  -M int       Minimum alphabetic character count. Shorter fragments are classified as 'unknown'.
-  -d float     Minimum relative distance between top language probabilities (0.0-0.99).
-  -D string    Output column delimiter (default: tab).
-  -version     Print version and exit.
+  -D string
+        Output column delimiter. (default "\t")
+  -L    List all supported languages
+  -M int
+        Minimum text length (without regard for whitespace, punctuation or numerals!).
+        Shorter fragments will be classified as 'unknown'
+  -a    Show all confidence values (entire probability distribution), rather than just
+        the winning score. Does not work with --multi
+  -c float
+        Confidence threshold, only output results with at least this confidence value (0.0-1.0)
+  -d float
+        Minimum relative distance between top language probabilities (0.0-1.0).
+  -l string
+        Comma seperated list of iso-639-1 codes of languages to detect, if not specified,
+        all supported language will be used. Setting this improves accuracy and resource usage.
+  -m    Classify multiple languages in mixed texts, will return matches along with UTF-8
+        byte offsets. Can not be combined with line mode.
+  -n    Classify language per line, this only works if text is not supplied directly as an argument
+  -q    Quick/low accuracy mode
+  -version
+        Print version
 ```
 
 ## Examples
